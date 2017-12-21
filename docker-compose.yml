@@ -3,11 +3,10 @@ version: '2'
 services:
   ocomis-logging-elasticsearch:
     image: blutner/ocomis-logging-elasticsearch:latest
-    ports:
-      - "9200:9200"
-      - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - ocomis-logging
 
   ocomis-logging-logstash:
     image: blutner/ocomis-logging-logstash:latest
@@ -18,8 +17,10 @@ services:
       - "5000:5000"
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-    links:
+    depends_on:
       - ocomis-logging-elasticsearch
+    networks:
+      - ocomis-logging
 
   ocomis-logging-kibana:
     image: blutner/ocomis-logging-kibana:latest
@@ -27,5 +28,11 @@ services:
       - ./kibana/config/:/usr/share/kibana/config:ro
     ports:
       - "5601:5601"
-    links:
+    depends_on:
       - ocomis-logging-elasticsearch
+    networks:
+      - ocomis-logging
+
+networks:
+  ocomis-logging:
+    driver: bridge
