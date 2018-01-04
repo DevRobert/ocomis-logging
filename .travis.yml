@@ -1,0 +1,31 @@
+sudo: required
+
+language: node_js
+
+node-js:
+  - "8"
+
+services:
+  - docker
+
+script:
+  - set -e
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+
+  - docker build -t "blutner/ocomis-logging-elasticsearch:latest" "./elasticsearch"
+  - docker build -t "blutner/ocomis-logging-kibana:latest" "./kibana"
+  - docker build -t "blutner/ocomis-logging-logstash:latest" "./logstash"
+
+  - docker tag "blutner/ocomis-logging-elasticsearch:latest" "blutner/ocomis-logging-elasticsearch:$TRAVIS_COMMIT"
+  - docker tag "blutner/ocomis-logging-kibana:latest" "blutner/ocomis-logging-kibana:$TRAVIS_COMMIT"
+  - docker tag "blutner/ocomis-logging-logstash:latest" "blutner/ocomis-logging-logstash:$TRAVIS_COMMIT"
+
+  - docker push "blutner/ocomis-logging-elasticsearch:$TRAVIS_COMMIT"
+  - docker push "blutner/ocomis-logging-kibana:$TRAVIS_COMMIT"
+  - docker push "blutner/ocomis-logging-logstash:$TRAVIS_COMMIT"
+
+  - docker push "blutner/ocomis-logging-elasticsearch:latest"
+  - docker push "blutner/ocomis-logging-kibana:latest"
+  - docker push "blutner/ocomis-logging-logstash:latest"
+
+  - docker logout
